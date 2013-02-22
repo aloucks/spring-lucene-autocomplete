@@ -37,7 +37,6 @@
 				var max = 10;
 				var dropdown = $('<div class="autocomplete-dropdown" id="'+id+'-autocomplete-dropdown'+'" style="display:none;position:absolute;border:1px solid #CCCCCC;background-color:#FFFFFF"></div>');
 				dropdown.css('min-width', (input.outerWidth() - 2) + "px");
-				console.log(input.css('margin-bottom'));
 				dropdown.css('margin-top', "-" + input.css('margin-bottom'));
 				input.after(dropdown);
 				input.blur(function(){
@@ -61,7 +60,6 @@
 					timer = setTimeout(function(){
 						if ( value ) {
 							jqXHR = $.getJSON(url, { "query" : value, "max" : max }, function(data){
-								console.log(data);
 								dropdown.html('');
 								if ( data.results && data.results.length > 0 ) {
 									var ul = $("<ul></ul>");
