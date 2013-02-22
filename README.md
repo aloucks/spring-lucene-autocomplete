@@ -1,4 +1,4 @@
 springcustomautocomplete
 ========================
 
-Example custom autocomplete with spring
+Example custom autocomplete with spring and lucene
