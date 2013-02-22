@@ -1,0 +1,7 @@
+<!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 2.1//EN" "http://tiles.apache.org/dtds/tiles-config_2_1.dtd">
+<tiles-definitions>
+	<definition name="layout-main" template="/WEB-INF/tiles/layout-main.jsp">
+		<put-attribute name="title" type="string" cascade="true" value="Default Page Title"/>
+		<put-attribute name="body" type="string" cascade="true" value="Default Body"/>
+	</definition>
+</tiles-definitions>
