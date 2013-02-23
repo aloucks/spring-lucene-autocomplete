@@ -13,6 +13,12 @@
 			.control-group {
 				margin-bottom:0px;
 			}
+			.autocomplete-dropdown {
+				display:none;
+				position:absolute;
+				border:1px solid #CCCCCC;
+				background-color:#FFFFFF
+			}
 			.autocomplete-dropdown ul {
 				list-style-type: none;
 				margin:0px;
@@ -22,7 +28,7 @@
 				margin:0px;
 				padding:3px 5px 3px 5px;
 			}
-			.autocomplete-dropdown ul li:hover, .autocomplete-dropdown ul li.active {
+			.autocomplete-dropdown ul li.active {
 				background-color:#3366FF;
 				color:#FFFFFF;
 				cursor:pointer;
@@ -31,11 +37,12 @@
 		<script type="text/javascript">
 			var id = "codes";
 			$(document).ready(function(){
-				var jqXHR;
+				var jqXHR = null;
 				var input = $("#"+id);
 				var url = "autocomplete.json";
 				var max = 10;
-				var dropdown = $('<div class="autocomplete-dropdown" id="'+id+'-autocomplete-dropdown'+'" style="display:none;position:absolute;border:1px solid #CCCCCC;background-color:#FFFFFF"></div>');
+				var timer = null;
+				var dropdown = $('<div class="autocomplete-dropdown" id="'+id+'-autocomplete-dropdown'+'"></div>');
 				dropdown.css('min-width', (input.outerWidth() - 2) + "px");
 				dropdown.css('margin-top', "-" + input.css('margin-bottom'));
 				input.after(dropdown);
@@ -45,12 +52,12 @@
 					}, 150);
 				});
 				$(document).on('click', ".autocomplete-dropdown ul li", function() {
-					$(input).val($(this).attr('autocomplete-value'));
+					var inputId = $(this).parent('ul').attr('autocomplete-for');
+					$("#"+inputId).val($(this).attr('autocomplete-value'));
 					setTimeout(function(){
-						dropdown.hide();
+						$("#"+inputId+'-autocomplete-dropdown').hide();
 					}, 150);
 				});
-				var timer;
 				$(input).keyup(function(event){
 					// Ignore arrow keys and enter
 					if ( event.keyCode == 13 || (event.keyCode >= 37 && event.keyCode <= 40) ) {
@@ -66,11 +73,26 @@
 							jqXHR = $.getJSON(url, { "query" : value, "max" : max }, function(data){
 								dropdown.html('');
 								if ( data.results && data.results.length > 0 ) {
-									var ul = $("<ul></ul>");
+									var ul = $('<ul autocomplete-for="'+id+'"></ul>');
 									dropdown.append(ul);
 									for ( var i in data.results ) {
 										var result = data.results[i];
-										ul.append('<li autocomplete-value="'+result['raw-code']+'">'+result['raw-code']+" - "+result['description']+"</li>");
+										var li = $('<li autocomplete-value="'+result['raw-code']+'">'+result['raw-code']+" - "+result['description']+"</li>");
+										li.hover(
+											// mouseIn
+											function(){
+												// remove active from all, including set by up/down keys
+												$(this).parent('ul').find('li.active').removeClass('active');
+												// set this li as active
+												$(this).addClass('active');
+											},
+											// mouseOut
+											function(){
+												// remove active from all, including set by up/down keys
+												$(this).parent('ul').find('li.active').removeClass('active');
+											}
+										);
+										ul.append(li);
 									}
 									dropdown.show();
 								}
@@ -83,7 +105,7 @@
 				});
 				$(input).keydown(function(event){
 					var ul = dropdown.find("ul").first();
-					// Set the input text to the active code if it exists
+					// When the user hits enter, set the input text to the active code if it exists
 					if ( event.keyCode == 13 ) {
 						var activeLi = ul.find("li.active").first();
 						if ( activeLi.length > 0 ) {
