@@ -17,7 +17,16 @@
 				display:none;
 				position:absolute;
 				border:1px solid #CCCCCC;
-				background-color:#FFFFFF
+				padding:1px;
+				background-color:#FFFFFF;
+				overflow-y:auto;
+				-moz-box-shadow: 4px 4px 4px #CCCCCC;
+				-webkit-box-shadow: 1px 1px 1px #CCCCCC;
+				box-shadow: 2px 2px 2px #CCCCCC;
+				/* For IE 8 */
+				-ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=2, Direction=135, Color='#CCCCCC')";
+				/* For IE 5.5 - 7 */
+				filter: progid:DXImageTransform.Microsoft.Shadow(Strength=2, Direction=135, Color='#CCCCCC');
 			}
 			.autocomplete-dropdown ul {
 				list-style-type: none;
@@ -38,7 +47,7 @@
 		
 			(function($){
 				
-				// Global initialization
+				// Global initialization - Handle dropdown element click events
 				$(document).on('click', ".autocomplete-dropdown ul li", function() {
 					var input = $(this).parent('ul').data('ref-input');
 					var dropdown = input.data('ref-dropdown');
@@ -64,7 +73,6 @@
 					
 					var input = $(this);
 					var jqXHR = null;
-					var max = 10;
 					var timer = null;
 					var url = settings.url;
 					var max = settings.max;
@@ -74,7 +82,7 @@
 					
 					input.data('ref-dropdown', dropdown); // Reference to the dropdown
 					
-					dropdown.css('min-width', (input.outerWidth() - 2) + "px");
+					dropdown.css('min-width', (input.outerWidth() - (dropdown.outerWidth() - dropdown.width()) ) + "px");
 					dropdown.css('margin-top', "-" + input.css('margin-bottom'));
 					
 					// Attach the dropdown after the input
@@ -126,6 +134,7 @@
 											ul.append(li);
 										}
 										dropdown.show();
+										dropdown.scrollTop(0);
 									}
 									else {
 										dropdown.hide();
@@ -199,5 +208,10 @@
 		<input type="text" id="codes1" autocomplete="off"/>
 		<p>Type a number</p>
 		<input type="text" id="codes2" autocomplete="off"/>
+		<p>Normal Select</p>
+		<select>
+			<option>Test</option>
+			<option>Test</option>
+		</select>
 	</tiles:putAttribute>
 </tiles:insertDefinition>
