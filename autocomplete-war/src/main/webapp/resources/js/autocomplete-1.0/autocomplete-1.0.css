@@ -1,0 +1,29 @@
+.autocomplete-dropdown {
+	display:none;
+	position:absolute;
+	border:1px solid #CCCCCC;
+	padding:1px;
+	background-color:#FFFFFF;
+	overflow-y:auto;
+	-moz-box-shadow: 2px 2px 2px #CCCCCC;
+	-webkit-box-shadow: 2px 2px 2px #CCCCCC;
+	box-shadow: 2px 2px 2px #CCCCCC;
+	/* For IE 8 */
+	-ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=2, Direction=135, Color='#CCCCCC')";
+	/* For IE 5.5 - 7 */
+	filter: progid:DXImageTransform.Microsoft.Shadow(Strength=2, Direction=135, Color='#CCCCCC');
+}
+.autocomplete-dropdown ul {
+	list-style-type: none;
+	margin:0px;
+	padding:0px;
+}
+.autocomplete-dropdown ul li {
+	margin:0px;
+	padding:3px 5px 3px 5px;
+}
+.autocomplete-dropdown ul li.active {
+	background-color:#3366FF;
+	color:#FFFFFF;
+	cursor:pointer;
+}

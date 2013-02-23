@@ -10,6 +10,7 @@
     <meta name="author" content="">
 	<!-- Styles -->
 	<link href="${pageContext.request.contextPath}/resources/js/bootstrap-2.3.0/css/bootstrap.min.css" rel="stylesheet"/>
+	<link href="${pageContext.request.contextPath}/resources/js/autocomplete-1.0/autocomplete-1.0.css" rel="stylesheet"/>
 	<link href="${pageContext.request.contextPath}/resources/css/application.css" rel="stylesheet"/>
 	<!-- Javascript -->
 	<!--[if lt IE 9]>
@@ -17,6 +18,7 @@
     <![endif]-->
 	<script src="${pageContext.request.contextPath}/resources/js/jquery-1.9.1/jquery-1.9.1.min.js" type="text/javascript"></script>
  	<script src="${pageContext.request.contextPath}/resources/js/bootstrap-2.3.0/js/bootstrap.min.js" type="text/javascript"></script>
+ 	<script src="${pageContext.request.contextPath}/resources/js/autocomplete-1.0/autocomplete-1.0.js" type="text/javascript"></script>
 	<script src="${pageContext.request.contextPath}/resources/js/application.js" type="text/javascript"></script>
 	<tiles:insertAttribute name="head-extra" ignore="true"/>
 </head>
