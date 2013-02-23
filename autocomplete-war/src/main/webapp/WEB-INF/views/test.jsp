@@ -22,7 +22,7 @@
 				margin:0px;
 				padding:3px 5px 3px 5px;
 			}
-			.autocomplete-dropdown ul li:hover {
+			.autocomplete-dropdown ul li:hover, .autocomplete-dropdown ul li.active {
 				background-color:#3366FF;
 				color:#FFFFFF;
 				cursor:pointer;
@@ -51,7 +51,11 @@
 					}, 150);
 				});
 				var timer;
-				$(input).keyup(function(){
+				$(input).keyup(function(event){
+					// Ignore arrow keys and enter
+					if ( event.keyCode == 13 || (event.keyCode >= 37 && event.keyCode <= 40) ) {
+						return;
+					}
 					var value = $(this).val();
 					clearTimeout(timer);
 					if ( jqXHR ) {
@@ -76,6 +80,54 @@
 							});
 						}
 					}, 250);
+				});
+				$(input).keydown(function(event){
+					var ul = dropdown.find("ul").first();
+					// Set the input text to the active code if it exists
+					if ( event.keyCode == 13 ) {
+						var activeLi = ul.find("li.active").first();
+						if ( activeLi.length > 0 ) {
+							activeLi.click();
+							event.preventDefault();
+						}
+					}
+					// Ignore non-arrow keys
+					if ( event.keyCode < 37 || event.keyCode > 40 ) {
+						return;
+					}
+					// Down key
+					if ( event.keyCode == 40 ) {
+						var activeLi = ul.find("li.active").first();
+						if ( activeLi.length > 0 ) {
+							activeLi.removeClass("active");
+							var nextLi = activeLi.next("li");
+							if ( nextLi.length == 0 ) {
+								nextLi = ul.find("li").first();
+							}
+							nextLi.addClass("active");
+						}
+						else {
+							ul.find("li").first().addClass("active");
+						}
+						event.preventDefault();
+					}
+					// Up key
+					if ( event.keyCode == 38 ) {
+						var ul = dropdown.find("ul").last();
+						var activeLi = ul.find("li.active").last();
+						if ( activeLi.length > 0 ) {
+							activeLi.removeClass("active");
+							var prevLi = activeLi.prev("li");
+							if ( prevLi.length == 0 ) {
+								prevLi = ul.find("li").last();
+							}
+							prevLi.addClass("active");
+						}
+						else {
+							ul.find("li").last().addClass("active");
+						}
+						event.preventDefault();
+					}
 				});
 			});
 		</script>
