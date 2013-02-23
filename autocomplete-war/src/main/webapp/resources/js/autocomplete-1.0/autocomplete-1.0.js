@@ -1,5 +1,5 @@
 /**
- * Autocomplete jQuery Plugin 1.0.
+ * jQuery Autocomplete Plugin 1.0.
  *
  * Aaron Loucks
  * 2013-02-23 
