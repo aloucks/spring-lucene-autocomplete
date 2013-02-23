@@ -20,13 +20,14 @@
 				padding:1px;
 				background-color:#FFFFFF;
 				overflow-y:auto;
-				-moz-box-shadow: 4px 4px 4px #CCCCCC;
-				-webkit-box-shadow: 1px 1px 1px #CCCCCC;
-				box-shadow: 2px 2px 2px #CCCCCC;
-				/* For IE 8 */
-				-ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=2, Direction=135, Color='#CCCCCC')";
-				/* For IE 5.5 - 7 */
-				filter: progid:DXImageTransform.Microsoft.Shadow(Strength=2, Direction=135, Color='#CCCCCC');
+				-moz-box-shadow: 2px 2px 2px #CCCCCC;
+				-webkit-box-shadow: 2px 2px 2px #CCCCCC;
+ 				box-shadow: 2px 2px 2px #CCCCCC;
+ 				/* For IE 8 */
+ 				-ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=2, Direction=135, Color='#CCCCCC')";
+ 				/* For IE 5.5 - 7 */
+ 				filter: progid:DXImageTransform.Microsoft.Shadow(Strength=2, Direction=135, Color='#CCCCCC');
+
 			}
 			.autocomplete-dropdown ul {
 				list-style-type: none;
@@ -48,36 +49,65 @@
 			(function($){
 				
 				// Global initialization - Handle dropdown element click events
-				$(document).on('click', ".autocomplete-dropdown ul li", function() {
+				var $document = $(document);
+				var clickHandler = function() {
 					var input = $(this).parent('ul').data('ref-input');
 					var dropdown = input.data('ref-dropdown');
 					input.val($(this).attr('autocomplete-value'));
 					setTimeout(function(){
 						dropdown.hide();
 					}, 150);
-				});
+				};
+				// 1.7+
+				if ( $document.on ) {
+					$document.on('click', ".autocomplete-dropdown ul li", clickHandler);
+				}
+				// 1.4.3+
+				else if ( $document.delegate ) {
+					$document.delegate(".autocomplete-dropdown ul li", 'click', clickHandler);
+				}
+				// 1.3+ 
+				else if ( $document.live ) {
+					$(".autocomplete-dropdown ul li").live('click', clickHandler);
+					// first() and last() weren't introduced until 1.4
+					if ( ! $.fn.first ) {
+						$.fn.first = function() {
+							return $($(this)[0]);
+						}
+					}
+					if ( ! $.fn.last ) {
+						$.fn.last = function() {
+							var $this = $(this);
+							return $($this[$this.length - 1]);
+						}
+					}
+				} 
+				else {
+					if ( console ) {
+						console.log("Autocomplete: unsupported jQuery version: " + $().jquery);
+					}
+				}
 				
 				// Plugin method
 				$.fn.autocomplete = function(options) {
 					var settings = $.extend({
 						'url'				: null,
 						'max'				: 10,
-						'resultsProperty' 	: 'results',
+						'resultsProperty'	: "results",
 						'valueCallback' 	: function(result) {
-							return result['raw-code'];
+							return result['value'];
 						},
 						'displayCallback' 	: function(result) {
-							return result['raw-code'] + " - " + result['description'];
+							return result['value'] + " - " + result['description'];
+						},
+						'dataCallback'		: function(value, max) {
+							return { "query" : value, "max" : max };
 						}
 					}, options);
 					
 					var input = $(this);
 					var jqXHR = null;
 					var timer = null;
-					var url = settings.url;
-					var max = settings.max;
-					var valueCallback = settings.valueCallback;
-					var displayCallback = settings.displayCallback;
 					var dropdown = $('<div class="autocomplete-dropdown"></div>');
 					
 					input.data('ref-dropdown', dropdown); // Reference to the dropdown
@@ -108,15 +138,16 @@
 						}
 						timer = setTimeout(function(){
 							if ( value ) {
-								jqXHR = $.getJSON(url, { "query" : value, "max" : max }, function(data){
+								jqXHR = $.getJSON(settings.url, settings.dataCallback(value, settings.max), function(data){
 									dropdown.html('');
-									if ( data.results && data.results.length > 0 ) {
+									var results = data[settings.resultsProperty] ? data[settings.resultsProperty] : data;
+									if ( results && results.length > 0 ) {
 										var ul = $('<ul></ul>');
 										ul.data('ref-input', input); // Reference to the input
 										dropdown.append(ul);
-										for ( var i in data.results ) {
+										for ( var i in results ) {
 											var result = data.results[i];
-											var li = $('<li autocomplete-value="'+valueCallback(result)+'">'+displayCallback(result)+"</li>");
+											var li = $('<li autocomplete-value="'+settings.valueCallback(result)+'">'+settings.displayCallback(result)+"</li>");
 											li.hover(
 												// mouseIn
 												function(){
@@ -141,27 +172,39 @@
 									}
 								});
 							}
+							else {
+								jqXHR = null;
+								setTimeout(function(){
+									if ( ! jqXHR ) {
+										dropdown.hide();
+									}
+								}, 250);
+							}
 						}, 250);
 					});
 					
 					// Move the active selection
 					$(input).keydown(function(event){
-						var ul = dropdown.find("ul").first();
+						var ul = dropdown.find("ul");
+						
 						// When the user hits enter, set the input text to the active code if it exists
 						if ( event.keyCode == 13 ) {
-							var activeLi = ul.find("li.active").first();
+							var activeLi = ul.find("li.active");
 							if ( activeLi.length > 0 ) {
 								activeLi.click();
+								activeLi.removeClass("active");
 								event.preventDefault();
 							}
 						}
+						
 						// Ignore non-arrow keys
-						if ( event.keyCode < 37 || event.keyCode > 40 ) {
+						else if ( event.keyCode < 37 || event.keyCode > 40 ) {
 							return;
 						}
+						
 						// Down key
-						if ( event.keyCode == 40 ) {
-							var activeLi = ul.find("li.active").first();
+						else if ( event.keyCode == 40 ) {
+							var activeLi = ul.find("li.active");
 							if ( activeLi.length > 0 ) {
 								activeLi.removeClass("active");
 								var nextLi = activeLi.next("li");
@@ -175,10 +218,10 @@
 							}
 							event.preventDefault();
 						}
+						
 						// Up key
-						if ( event.keyCode == 38 ) {
-							var ul = dropdown.find("ul").last();
-							var activeLi = ul.find("li.active").last();
+						else if ( event.keyCode == 38 ) {
+							var activeLi = ul.find("li.active");
 							if ( activeLi.length > 0 ) {
 								activeLi.removeClass("active");
 								var prevLi = activeLi.prev("li");
@@ -197,21 +240,27 @@
 			})(jQuery);
 		
 			$(document).ready(function(){
-				$("#codes1").autocomplete({url : "autocomplete.json"});
+				var valueCallback = function(result){return result['raw-code'];};
+				var displayCallback = function(result){return result['raw-code'] + " - " + result['description'];};
+				$("#codes1").autocomplete({'url' : "autocomplete.json", 'valueCallback' : valueCallback, 'displayCallback' : displayCallback});
 				$("#codes2").autocomplete({url : "autocomplete.json"});
 			});
 		
 		</script>
 	</tiles:putAttribute>
 	<tiles:putAttribute name="body">
-		<p>Type a number</p>
-		<input type="text" id="codes1" autocomplete="off"/>
-		<p>Type a number</p>
-		<input type="text" id="codes2" autocomplete="off"/>
-		<p>Normal Select</p>
-		<select>
-			<option>Test</option>
-			<option>Test</option>
-		</select>
+		<form>
+			<p>Type a number</p>
+			<input type="text" id="codes1" autocomplete="off"/>
+			<p>Type a number</p>
+			<input type="text" id="codes2" autocomplete="off"/>
+			<p>Normal Select</p>
+			<select>
+				<option>Test</option>
+				<option>Test</option>
+			</select>
+			<br/><br/>
+			<input type="submit" value="Reset"/>
+		</form>
 	</tiles:putAttribute>
 </tiles:insertDefinition>
