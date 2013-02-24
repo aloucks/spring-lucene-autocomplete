@@ -53,13 +53,14 @@ public class IndexImpl implements Index {
 		SearchResultsDTO results = new SearchResultsDTO();
 		try {
 			if ( queryString != null ) {
-				QueryParser parser = new QueryParser(version, TestDocumentFeederImpl.RAW_CODE, analyzer);
+				QueryParser parser = new QueryParser(version, TestDocumentFeederImpl.ALL, analyzer);
 				Query query = parser.parse(queryString);
 				TopDocs topDocs = searcher.search(query, max);
 				results.setTotalHits(topDocs.totalHits);
 				for ( ScoreDoc scoreDoc : topDocs.scoreDocs ) {
 					Document doc = searcher.doc(scoreDoc.doc);
 					Map<String,String> result = new HashMap<String,String>();
+					result.put("score", Float.toString(scoreDoc.score));
 					for ( IndexableField f : doc.getFields() ) {
 						result.put(f.name(), f.stringValue());
 					}

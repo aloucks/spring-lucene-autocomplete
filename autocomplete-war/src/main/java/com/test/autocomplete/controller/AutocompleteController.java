@@ -24,7 +24,7 @@ import com.test.autocomplete.model.SearchResultsDTO;
 public class AutocompleteController {
 	
 	private final static Logger log = LoggerFactory.getLogger(AutocompleteController.class);
-	private final static String QUERY_TEMPLATE = "trim-code:{0}^2.0 OR trim-code:{0}*^1.5 OR raw-code:{0}*^1.5 OR description:\"{0}\"^5 OR description:{0}*";
+	private final static String QUERY_TEMPLATE = "trim-code:{0}^2.0 OR trim-code:{0}*^1.5 OR raw-code:{0}*^1.5 OR description:\"{0}\"^10 OR {0}";
 	
 	private final static int MAX_RESULTS = 100;
 	

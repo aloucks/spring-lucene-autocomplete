@@ -15,6 +15,7 @@ import com.test.autocomplete.index.DocumentFeeder;
 
 @Named
 public class TestDocumentFeederImpl implements DocumentFeeder {
+	public final static String ALL = "all";
 	public final static String RAW_CODE = "raw-code";
 	public final static String TRIM_CODE = "trim-code";
 	public final static String DESCRIPTION = "description";
@@ -26,9 +27,13 @@ public class TestDocumentFeederImpl implements DocumentFeeder {
 		Document doc;
 		for ( int i=0; i<15000; i++ ) {
 			doc = new Document();
-			doc.add(new StringField(RAW_CODE, String.format("%05d", i), Store.YES));
-			doc.add(new StringField(TRIM_CODE, String.format("%d", i), Store.YES));
-			doc.add(new TextField(DESCRIPTION, tokens(i), Store.YES));
+			String description = tokens(i);
+			String rawCode = String.format("%05d", i);
+			String trimCode = String.format("%d", i);
+			doc.add(new StringField(RAW_CODE, rawCode, Store.YES));
+			doc.add(new StringField(TRIM_CODE, trimCode, Store.YES));
+			doc.add(new TextField(DESCRIPTION, description, Store.YES));
+			doc.add(new TextField(ALL, rawCode + " " + trimCode + " " + description, Store.NO));
 			list.add(doc);
 		}
 		
